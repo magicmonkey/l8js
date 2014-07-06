@@ -1,6 +1,6 @@
 {
   "name": "l8js",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "author": "Kevin Bowman <npm@magicmonkey.org>",
   "description": "A library to talk to L8 Smartlights",
   "main": "./l8.js",
