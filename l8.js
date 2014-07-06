@@ -1,32 +1,35 @@
 var crc = require('crc');
 var util = require('util');
 var events = require('events');
-var stream;
 
 function init(_stream) {
 	stream = _stream;
-	stream.on('data', function(d) {
-		console.log("Received: ", parsePacket(d));
-	});
+	return new L8(stream);
 }
 
-function L8() {
+function L8(_stream) {
 	events.EventEmitter.call(this);
+
+	var self = this;
+	this.stream = _stream;
+	stream.on('data', function(d) {
+		console.log("Received: ", self.parsePacket(d));
+	});
 }
 L8.prototype.__proto__ = events.EventEmitter.prototype;
 
-function send(name, params) {
+L8.prototype.send = function(name, params) {
 	var cmdbyte = 0;
 	if (typeof l8cmds[name] == 'undefined') {
 		throw "Unknown L8 cmd: " + name;
 	}
 	//console.log("Sending "+name);
 	var cmd = l8cmds[name];
-	var pkt = createPacket(cmd, params);
-	sendPacket(pkt);
+	var pkt = this.createPacket(cmd, params);
+	this.sendPacket(pkt);
 }
 
-function makePacket(payload) {
+L8.prototype.makePacket = function(payload) {
 	var b = new Buffer(payload.length + 4);
 	b[0] = 0xaa;
 	b[1] = 0x55;
@@ -36,14 +39,14 @@ function makePacket(payload) {
 	return b;
 }
 
-function sendPacket(payload) {
-	var packet = makePacket(payload);
+L8.prototype.sendPacket = function(payload) {
+	var packet = this.makePacket(payload);
 	//console.log("Sending:  ", packet);
 	stream.write(packet);
 }
 
-function createPacket(cmd, params) {
-	var pkt = new Buffer(getPacketSize(cmd));
+L8.prototype.createPacket = function(cmd, params) {
+	var pkt = new Buffer(this.getPacketSize(cmd));
 	pkt[0] = cmd.cmdbyte;
 	var runningPlace = 1;
 	for (var i in cmd.params) {
@@ -53,7 +56,7 @@ function createPacket(cmd, params) {
 	return pkt;
 }
 
-function getPacketSize(l8cmd) {
+L8.prototype.getPacketSize = function(l8cmd) {
 	var pktsize = 1;
 	for (var i in l8cmd.params) {
 		pktsize += l8cmd.params[i].type.size;
@@ -61,7 +64,7 @@ function getPacketSize(l8cmd) {
 	return pktsize;
 }
 
-function parsePacket(d) {
+L8.prototype.parsePacket = function(d) {
 	var pkt = {type:null};
 	if (d[0] != 0xaa && d[1] != 0x55) {
 		// Half way through a packet, not sure what to do with that

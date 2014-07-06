@@ -15,10 +15,9 @@ stream.on('open', function() {
 	for (var i=0; i<64; i++) {
 		pixels[i] = {b:(i%2), g:(i%4), r:(i%8)};
 	}
-	l8a.send('MATRIX_SET', {pixels:pixels});
+	//l8a.send('MATRIX_SET', {pixels:pixels});
 
 	setInterval(function() {
-		return;
 		l8a.send('VOLTAGE_QUERY');
 		l8a.send('TEMP_QUERY');
 		l8a.send('ACC_QUERY');
@@ -29,7 +28,7 @@ stream.on('open', function() {
 		l8a.send('MCUTEMP_QUERY');
 		l8a.send('BATCHG_QUERY');
 		l8a.send('ORIENTATION_QUERY');
-	}, 300);
+	}, 1000);
 });
 
 var stdin = process.openStdin();
