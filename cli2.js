@@ -2,6 +2,8 @@ var l8 = require('./l8');
 var util = require('util');
 var SerialPortStream = require('serial-port-stream');
 
+var l8_pics = require('./l8_pics');
+
 var streama = new SerialPortStream('/dev/rfcomm0');
 var l8a = l8.init(streama);
 var streamb = new SerialPortStream('/dev/rfcomm1');
@@ -82,6 +84,14 @@ stdin.on('data', function (key) {
 		case 0x33:
 			l8a.send('VOLTAGE_QUERY');
 			l8b.send('VOLTAGE_QUERY');
+			break;
+
+		case 0x34:
+			l8a.send('MATRIX_SET', {pixels:l8_pics.mail});
+			break;
+
+		case 0x35:
+			l8a.send('MATRIX_SET', {pixels:l8_pics.boxes});
 			break;
 
 		case 0x03: // ctrl-c
