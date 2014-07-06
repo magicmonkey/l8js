@@ -49,6 +49,7 @@ L8.prototype.createPacket = function(cmd, params) {
 	pkt[0] = cmd.cmdbyte;
 	var runningPlace = 1;
 	for (var i in cmd.params) {
+		//console.log(cmd.params);
 		cmd.params[i].type.unparse(pkt, runningPlace, params[cmd.params[i].name]);
 		runningPlace += cmd.params[i].type.size;
 	}
@@ -156,12 +157,12 @@ type = {
 			return 0;
 		},
 		unparse: function(b, start, params) {
-			if (params.pixels.length != 64) {
+			if (params.length != 64) {
 				throw "Should be 64 pixels specified";
 			}
 			for (var i=0; i<64; i++) {
-				b.writeUInt8(params.pixels[i].b, start + (2*i));
-				b.writeUInt8(params.pixels[i].g << 4 | params.pixels[i].r, start + (2*i) + 1);
+				b.writeUInt8(params[i].b, start + (2*i));
+				b.writeUInt8(params[i].g << 4 | params[i].r, start + (2*i) + 1);
 			}
 		}
 	},
