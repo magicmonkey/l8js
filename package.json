@@ -1,0 +1,30 @@
+{
+  "name": "l8",
+  "version": "0.0.1",
+  "author": "Kevin Bowman <npm@magicmonkey.org>",
+  "description": "A library to talk to L8 Smartlights",
+  "main": "./l8.js",
+  "repository" : {
+    "type" : "git",
+    "url" : "https://github.com/magicmonkey/l8js.git"
+  },
+  "licenses" : [
+    {
+      "type" : "Apache",
+      "url" : "https://github.com/magicmonkey/l8js/raw/master/LICENSE"
+    }
+  ],
+  "bugs" : {
+    "url" : "https://github.com/magicmonkey/l8js/issues"
+  },
+  "keywords": [
+    "l8",
+    "smartlight",
+    "led",
+    "bluetooth"
+  ],
+  "dependencies" : {
+    "serial-port-stream" : "*",
+    "crc" : "*"
+  }
+}
