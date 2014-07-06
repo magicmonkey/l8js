@@ -2,8 +2,7 @@ var crc = require('crc');
 var util = require('util');
 var events = require('events');
 
-function init(_stream) {
-	stream = _stream;
+function init(stream) {
 	return new L8(stream);
 }
 
@@ -12,7 +11,7 @@ function L8(_stream) {
 
 	var self = this;
 	this.stream = _stream;
-	stream.on('data', function(d) {
+	this.stream.on('data', function(d) {
 		console.log("Received: ", self.parsePacket(d));
 	});
 }
@@ -42,7 +41,7 @@ L8.prototype.makePacket = function(payload) {
 L8.prototype.sendPacket = function(payload) {
 	var packet = this.makePacket(payload);
 	//console.log("Sending:  ", packet);
-	stream.write(packet);
+	this.stream.write(packet);
 }
 
 L8.prototype.createPacket = function(cmd, params) {
@@ -50,7 +49,7 @@ L8.prototype.createPacket = function(cmd, params) {
 	pkt[0] = cmd.cmdbyte;
 	var runningPlace = 1;
 	for (var i in cmd.params) {
-		cmd.params[i].type.unparse(pkt, runningPlace, params);
+		cmd.params[i].type.unparse(pkt, runningPlace, params[cmd.params[i].name]);
 		runningPlace += cmd.params[i].type.size;
 	}
 	return pkt;
