@@ -12,7 +12,13 @@ function L8(_stream) {
 	var self = this;
 	this.stream = _stream;
 	this.stream.on('data', function(d) {
-		console.log("Received: ", self.parsePacket(d));
+		while (d.length > 0) {
+			d = self.parsePacket(d, function(pkt) {
+				self.emit('packet', pkt);
+				self.emit(pkt.type, pkt);
+			});
+		}
+
 	});
 }
 L8.prototype.__proto__ = events.EventEmitter.prototype;
@@ -64,7 +70,7 @@ L8.prototype.getPacketSize = function(l8cmd) {
 	return pktsize;
 }
 
-L8.prototype.parsePacket = function(d) {
+L8.prototype.parsePacket = function(d, cb) {
 	var pkt = {type:null};
 	if (d[0] != 0xaa && d[1] != 0x55) {
 		// Half way through a packet, not sure what to do with that
@@ -81,7 +87,7 @@ L8.prototype.parsePacket = function(d) {
 		l8cmd = l8cmds[i];
 		if (l8cmd.cmdbyte == cmdbyte) {
 			pkt.type = i;
-			console.log("Found a " + i + " packet");
+			//console.log("Found a " + i + " packet");
 			break;
 		}
 	}
@@ -94,7 +100,12 @@ L8.prototype.parsePacket = function(d) {
 		pkt[f.name] = f.type.parse(d, runningPlace);
 		runningPlace += f.type.size;
 	}
-	return pkt;
+
+	// TODO: Check the checksum
+	runningPlace += 1;
+
+	cb(pkt);
+	return d.slice(runningPlace);
 }
 
 type = {
@@ -187,19 +198,41 @@ type = {
 		unparse: function(b, start, params) {
 		}
 	},
+	packetType: {
+		size: 1,
+		parse: function(b, start) {
+			var name = "";
+			var found = false;
+			var cmdbyte = parseInt(b.readUInt8(start));
+
+			for (var i in l8cmds) {
+				if (l8cmds[i].cmdbyte == cmdbyte) {
+					name = i;
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				throw "Unknown acknowledgement ID: " + cmdbyte;
+			}
+			return name;
+		},
+		unparse: function(b, start, p) {
+		}
+	},
 };
 
 l8cmds = {
 	'ERR':{
 		cmdbyte: 0xff,
 		params:[
-			{name:'ID', type:type.uint8}
+			{name:'ID', type:type.packetType}
 		]
 	},
 	'OK':{
 		cmdbyte: 0x00,
 		params:[
-			{name:'ID', type:type.uint8}
+			{name:'ID', type:type.packetType}
 		]
 	},
 	'PING':{
