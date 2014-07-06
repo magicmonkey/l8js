@@ -248,7 +248,7 @@ l8cmds = {
 		params:[
 			{name:'x', type:type.uint8},
 			{name:'y', type:type.uint8},
-			{name:'BGR', type:type.bgr}
+			{name:'bgr', type:type.bgr}
 		]
 	},
 	'MATRIX_SET':{
