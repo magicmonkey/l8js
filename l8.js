@@ -109,6 +109,15 @@ L8.prototype.parsePacket = function(d, cb) {
 }
 
 type = {
+	char: {
+		size: 1,
+		parse: function(b, start) {
+			return b.readUInt8(start);
+		},
+		unparse: function(b, start, p) {
+			return b.writeUInt8(p.charCodeAt(0), start);
+		}
+	},
 	uint8: {
 		size: 1,
 		parse: function(b, start) {
@@ -513,7 +522,7 @@ l8cmds = {
 	'DISP_CHAR':{
 		cmdbyte: 0x7F,
 		params:[
-			{name:"char",  type: type.uint8},
+			{name:"char",  type: type.char},
 			{name:"shift", type: type.uint8},
 		]
 	},

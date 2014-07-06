@@ -36,6 +36,10 @@ streama.on('open', function() {
 var stdin = process.openStdin();
 process.stdin.setRawMode(true);
 process.stdin.resume();
+var x = 0;
+var y = 0;
+var colour = {b:15,g:0,r:0};
+
 stdin.on('data', function (key) {
 	//console.log(key);
 
@@ -43,6 +47,7 @@ stdin.on('data', function (key) {
 
 		case 0x31:
 			l8a.send('MATRIX_OFF');
+			l8a.send('SUPERLED_SET', {bgr:{b:0x0,g:0x0,r:0x0}});
 			break;
 
 		case 0x32:
@@ -71,9 +76,42 @@ stdin.on('data', function (key) {
 			process.exit();
 			break;
 
-		case 0x1b: // control character
-			if (key.length == 3) {
+		case 0x38:
+			l8a.send('SUPERLED_SET', {bgr:{b:0xf,g:0x0,r:0x0}});
+			break;
 
+		case 0x39:
+			l8a.send('SUPERLED_SET', {bgr:{b:0x0,g:0xf,r:0xf}});
+			break;
+
+		case 0x0d:
+			colour.b = 15 - colour.b;
+			colour.g = 15 - colour.g;
+			l8a.send('LED_SET', {x:x, y:y, bgr:colour});
+			break;
+
+		case 0x1b:
+			if (key.length == 3) {
+				//l8a.send('LED_SET', {x:x, y:y, bgr:{b:0,g:0,r:0}});
+				switch (key[2]) {
+					case 0x41:
+						x--;
+						break;
+					case 0x42:
+						x++;
+						break;
+					case 0x43:
+						y++;
+						break;
+					case 0x44:
+						y--;
+						break;
+				}
+				if (x<0) x=0;
+				if (y<0) y=0;
+				if (x>7) x=7;
+				if (y>7) y=7;
+				l8a.send('LED_SET', {x:x, y:y, bgr:colour});
 			}
 			break;
 	}
